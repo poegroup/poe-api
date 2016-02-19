@@ -2,6 +2,7 @@ defmodule PoeApi do
   defmacro __using__(_) do
     quote do
       use Application
+      Module.register_attribute(__MODULE__, :worker, accumulate: true)
       @before_compile unquote(__MODULE__)
       import unquote(__MODULE__)
 
@@ -15,12 +16,16 @@ defmodule PoeApi do
     end
   end
 
-  defmacro worker(_name, _opts) do
-    # TODO
-    nil
+  defmacro worker(module, args, opts \\ []) do
+    quote do
+      spec = Supervisor.Spec.worker(unquote(module), unquote(args), unquote(opts))
+      Module.put_attribute(__MODULE__, :worker, spec)
+    end
   end
 
-  defmacro __before_compile__(_) do
+  defmacro __before_compile__(env) do
+    workers = Module.get_attribute(env.module, :worker) |> Macro.escape()
+
     quote do
       defmodule Supervisor do
         use Elixir.Supervisor
@@ -31,10 +36,7 @@ defmodule PoeApi do
         end
 
         def init(_) do
-          processes = [
-            ## TODO pull from worker macro
-          ]
-          {:ok, {{:one_for_one, 10, 10}, processes}}
+          {:ok, {{:one_for_one, 10, 10}, unquote(workers)}}
         end
       end
     end
