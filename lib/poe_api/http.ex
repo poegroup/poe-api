@@ -38,8 +38,8 @@ defmodule PoeApi.HTTP do
           {:ok, %{"access_token" => token}} = PoeApi.OAuth2.Token.encode_access_token(client_id, to_string(user_id), scopes)
           {"authorization", "Bearer #{token}"}
         end
+        defoverridable authenticate_as: 3
       end
-      defoverridable authenticate_as: 3
 
       unquote(middleware(root, opts))
     end
