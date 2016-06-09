@@ -7,16 +7,21 @@ defmodule Todo.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     elixirc_paths: ["lib", "web"],]
   end
 
   def application do
-    [applications: [:logger,
+    [applications: [:etude_request,
+                    :logger,
                     :poe_api],
      mod: { Todo, [] },]
   end
 
   defp deps do
-    [{ :poe_api, path: "../../" }]
+    [{ :poe_api, path: "../../" },
+     { :parse_trans, "~> 2.9.0"},
+     { :etude_request, "~> 0.1.0" },
+     { :poison, "~> 2.1.0", override: true }]
   end
 end

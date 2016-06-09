@@ -7,20 +7,19 @@ defmodule PoeApi.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,]
   end
 
   def application do
-    [applications: [:bcrypt,
-                    :cowboy,
+    [applications: [:cowboy,
                     :logger,]]
   end
 
   defp deps do
     [dev_deps,
+     etude_deps,
      mazurka_deps,
      plug_deps,
-     oauth_deps,
      utils_deps]
     |> List.flatten
   end
@@ -34,21 +33,21 @@ defmodule PoeApi.Mixfile do
      { :plug, "~> 1.1.0", override: true },
      { :plug_wait1, "~> 0.1.2" },
      { :plug_accept_language, "~> 0.1.0" },
-     { :plug_x_forwarded_for, "~> 0.1.0" },]
+     { :plug_x_forwarded_for, "~> 0.1.0" },
+     { :concerto, "~> 0.1.0" },
+     { :fugue, "~> 0.1.0" }]
   end
 
   defp mazurka_deps do
-    [{ :mazurka, "~> 0.3.0" },
-     { :parse_trans, "~> 2.9.0" },]
+    [{ :mazurka, "~> 1.0.0", path: "../../exstruct/mazurka" },]
   end
 
-  defp oauth_deps do
-    [{ :erlpass, github: "ferd/erlpass", ref: "1e231e3645eb097606328e8e302ba45d145af943" },
-     { :simple_secrets, "~> 1.0.0" },
-     { :bitfield, "~> 1.0.0" },]
+  defp etude_deps do
+    [{ :etude, "~> 1.0.0-beta.0", path: "../../exstruct/etude", override: true },
+     { :prelude, "~> 0.0.1", path: "../../exstruct/prelude" }]
   end
 
   defp utils_deps do
-    [{ :poison, "1.4.0", override: true }]
+    [{ :poison, "~> 2.1.0", override: true }]
   end
 end
