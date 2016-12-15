@@ -3,7 +3,7 @@ defmodule PoeApi.Mixfile do
 
   def project do
     [app: :poe_api,
-     version: "0.1.0",
+     version: "0.2.0",
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -11,43 +11,19 @@ defmodule PoeApi.Mixfile do
   end
 
   def application do
-    [applications: [:cowboy,
-                    :logger,]]
+    [applications: [:logger] ++ Keyword.keys(deps())]
   end
 
   defp deps do
-    [dev_deps,
-     etude_deps,
-     mazurka_deps,
-     plug_deps,
-     utils_deps]
-    |> List.flatten
-  end
-
-  defp dev_deps do
-    [{ :rl, github: "camshaft/rl" },]
-  end
-
-  defp plug_deps do
-    [{ :cowboy, "~> 1.0.4" },
-     { :plug, "~> 1.1.0", override: true },
-     { :plug_wait1, "~> 0.1.2" },
-     { :plug_accept_language, "~> 0.1.0" },
-     { :plug_x_forwarded_for, "~> 0.1.0" },
-     { :concerto, "~> 0.1.0" },
-     { :fugue, "~> 0.1.0" }]
-  end
-
-  defp mazurka_deps do
-    [{ :mazurka, "~> 1.0.0", path: "../../exstruct/mazurka" },]
-  end
-
-  defp etude_deps do
-    [{ :etude, "~> 1.0.0-beta.0", path: "../../exstruct/etude", override: true },
-     { :prelude, "~> 0.0.1", path: "../../exstruct/prelude" }]
-  end
-
-  defp utils_deps do
-    [{ :poison, "~> 2.1.0", override: true }]
+    [{:concerto, "~> 0.1.2"},
+     {:concerto_plug, "~> 0.1.0"},
+     {:cowboy, "~> 1.0.0"},
+     {:fugue, "~> 0.1.2"},
+     {:mazurka, "~> 1.0.0"},
+     {:mazurka_plug, "~> 0.1.0"},
+     {:plug, "~> 1.2.0"},
+     {:plug_x_forwarded_proto, "~> 0.1.0"},
+     {:plug_wait1, "~> 0.2.1"},
+     {:poison, "2.2.0"}]
   end
 end
