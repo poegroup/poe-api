@@ -6,3 +6,12 @@ defmodule PoeApi.Resource do
     end
   end
 end
+
+defimpl Poison.Encoder, for: [
+  Mazurka.Affordance.Unacceptable,
+  Mazurka.Affordance.Undefined,
+] do
+  def encode(_, opts) do
+    @protocol.encode(nil, opts)
+  end
+end
