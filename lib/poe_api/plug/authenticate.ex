@@ -24,9 +24,11 @@ defmodule PoeApi.Plug.Authenticate do
   defp decode(conn, token, decoder) do
     case decoder.decode(token) do
       {:ok, info} ->
-        assign(conn, :auth, info)
-      {:error, :expired} ->
-        raise PoeApi.Token.ExpiredError, token: token, decoder: decoder
+        if PoeApi.Token.expired?(info) do
+          raise PoeApi.Token.ExpiredError, token: token, decoder: decoder
+        else
+          assign(conn, :auth, info)
+        end
       _ ->
         raise PoeApi.Token.InvalidError, token: token
     end

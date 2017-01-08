@@ -69,7 +69,7 @@ defmodule PoeApi.OAuth.Password do
               },
               "grant_type" => %{
                 "type" => "hidden",
-                "value" => grant_type || "password"
+                "value" => grant_type || unquote(opts[:grant_type] || "password")
               }
             }
           }
