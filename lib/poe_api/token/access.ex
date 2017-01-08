@@ -3,6 +3,12 @@ defmodule PoeApi.Token.Access do
 
   defstruct [:client, :scopes, :user, :expiration]
 
+  def encode(%{client: %{id: id}} = token) do
+    %{token | client: id}
+  end
+  def encode(%{user: %{id: id}} = token) do
+    %{token | user: id}
+  end
   def encode(%{client: client, user: user, scopes: scopes, expiration: expiration}) do
     expiration = expiration || expiration(8)
     params = %{
