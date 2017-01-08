@@ -4,7 +4,6 @@ defmodule PoeApi.OAuth.Password do
       opts: {:quote, [], [[do: opts]]}
     ] do
       use Mazurka.Resource
-      use Mazurka.Plug
 
       input client_id
       input client_secret
