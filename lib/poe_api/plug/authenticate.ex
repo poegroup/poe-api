@@ -4,7 +4,7 @@ defmodule PoeApi.Plug.Authenticate do
   import Plug.Conn
 
   def init([]) do
-    PoeApi.Token.Access
+    PoeApi.Token
   end
   def init([decoder: decoder]) do
     decoder

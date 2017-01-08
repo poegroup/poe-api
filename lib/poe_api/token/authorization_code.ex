@@ -1,29 +1,27 @@
 defmodule PoeApi.Token.AuthorizationCode do
-  alias PoeApi.Token
-  alias Token.RelativeExpiration
-  import Token
+  alias PoeApi.Token.{Config,RelativeExpiration,Utils}
 
   @salt_length 6
 
   defstruct [client: nil, scopes: [], user: nil, expiration: %RelativeExpiration{hours: 1}, redirect_uri: nil]
 
   def encode(%{client: client, user: user, redirect_uri: redirect_uri, enabled_scopes: enabled_scopes, expiration: expiration}) do
-    [{sender, epoch} | _] = senders()
+    [{sender, epoch} | _] = Config.senders()
     expiration = expiration || %RelativeExpiration{hours: 1}
     salt = :crypto.strong_rand_bytes(@salt_length)
     params = %{
       "c" => client,
-      "s" => pack_scopes(enabled_scopes),
+      "s" => Utils.pack_scopes(enabled_scopes),
       "u" => user,
-      "e" => pack_date(expiration, epoch),
+      "e" => Utils.pack_date(expiration, epoch),
       "r" => hash_redirect_uri(redirect_uri, salt)
     }
     code = SimpleSecrets.pack!(params, sender)
-    {:ok, code, DateTime.to_unix(unpack_date(params["e"], 0))}
+    {:ok, "c" <> code, DateTime.to_unix(Utils.unpack_date(params["e"], 0))}
   end
 
-  def decode(token) do
-    senders()
+  def decode("c" <> token) do
+    Config.senders()
     |> Enum.find_value({:error, :invalid}, fn({sender, epoch}) ->
       case SimpleSecrets.unpack(token, sender) do
         {:error, _} ->
@@ -31,10 +29,10 @@ defmodule PoeApi.Token.AuthorizationCode do
         {:ok, %{"c" => client, "s" => scopes, "e" => expiration, "u" => user, "r" => redirect_uri}} ->
           {:ok, %__MODULE__{
             client: client,
-            scopes: unpack_scopes(scopes),
+            scopes: Utils.unpack_scopes(scopes),
             user: user,
             redirect_uri: redirect_uri,
-            expiration: unpack_date(expiration, epoch)
+            expiration: Utils.unpack_date(expiration, epoch)
           }}
       end
     end)
