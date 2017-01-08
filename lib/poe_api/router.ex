@@ -1,10 +1,10 @@
 defmodule PoeApi.Router do
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
     resource = format_resource(__CALLER__.module)
-    quote do
+    quote bind_quoted: binding do
       use Concerto, [root: "#{System.cwd!}/web",
                      ext: ".ex",
-                     module_prefix: unquote(resource)]
+                     module_prefix: resource]
       use Concerto.Plug.Mazurka
 
       plug :match
@@ -15,6 +15,9 @@ defmodule PoeApi.Router do
         plug Plug.Logger
       end
 
+      if opts[:auth] != false do
+        plug PoeApi.Plug.Authenticate
+      end
       plug Plug.Parsers, parsers: [Plug.Parsers.Wait1,
                                    Plug.Parsers.JSON,
                                    Plug.Parsers.URLENCODED],

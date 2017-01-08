@@ -13,3 +13,9 @@ defmodule PoeApi.Token.ExpiredError do
     "Token expired"
   end
 end
+
+defimpl Plug.Exception, for: [PoeApi.Token.InvalidError, PoeApi.Token.ExpiredError] do
+  def status(_) do
+    401
+  end
+end
