@@ -1,9 +1,11 @@
 defmodule PoeApi.Plug.Authenticate do
-
   @behaviour Plug
 
   import Plug.Conn
 
+  def init([]) do
+    PoeApi.Token.Access
+  end
   def init([decoder: decoder]) do
     decoder
   end
@@ -23,8 +25,26 @@ defmodule PoeApi.Plug.Authenticate do
     case decoder.decode(token) do
       {:ok, info} ->
         assign(conn, :auth, info)
+      {:error, :expired} ->
+        raise PoeApi.Token.ExpiredError, token: token, decoder: decoder
       _ ->
-        assign(conn, :auth, nil)
+        raise PoeApi.Token.InvalidError, token: token
     end
+  end
+
+  def get(conn, field \\ :user, transform \\ &(&1))
+  def get(%{assigns: %{auth: auth}}, field, transform) when is_map(auth) do
+    case Map.fetch!(auth, field) do
+      {:ok, value} when not is_nil(value) ->
+        transform.(value)
+      _ ->
+        nil
+    end
+  end
+  def get(%{assigns: %{auth: nil}}, _, _) do
+    nil
+  end
+  def get(_, field, _) do
+    raise ArgumentError, "PoeApi.Plug.Authenticate needs to be initialized before getting conn.assigns[#{inspect(field)}]"
   end
 end

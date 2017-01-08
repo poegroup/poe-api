@@ -40,5 +40,4 @@ defmodule PoeApi.Mixfile do
      licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/poegroup/poe-api"}]
   end
-
 end
