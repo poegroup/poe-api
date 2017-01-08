@@ -20,7 +20,8 @@ defmodule PoeApi.Mixfile do
     [{:ex_doc, ">= 0.0.0", only: :dev}] ++ deps(:prod)
   end
   defp deps(_) do
-    [{:concerto, "~> 0.1.2"},
+    [{:bitfield, "~> 1.0.0"},
+     {:concerto, "~> 0.1.2"},
      {:concerto_plug, "~> 0.1.0"},
      {:cowboy, "~> 1.0.0"},
      {:fugue, "~> 0.1.2"},
@@ -29,7 +30,8 @@ defmodule PoeApi.Mixfile do
      {:plug, "~> 1.2.0"},
      {:plug_x_forwarded_proto, "~> 0.1.0"},
      {:plug_wait1, "~> 0.2.1"},
-     {:poison, "2.2.0"},]
+     {:poison, "2.2.0"},
+     {:simple_secrets, "~> 1.0.0"},]
   end
 
   defp package do
@@ -38,4 +40,5 @@ defmodule PoeApi.Mixfile do
      licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/poegroup/poe-api"}]
   end
+
 end
