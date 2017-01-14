@@ -13,18 +13,18 @@ defmodule PoeApi.OAuth.Password do
       option clients
       option users
 
-      let client = authenticate_client(client_id, client_secret)
-      validation client
+      let client = authenticate_client(var!(client_id), var!(client_secret))
+      validation var!(client)
 
-      let user = authenticate_user(username, password)
-      validation user
+      let user = authenticate_user(var!(username), var!(password))
+      validation var!(user)
 
       mediatype Mazurka.Mediatype.Hyper do
         action do
           %PoeApi.Token.Access{
-            client: client,
-            user: user,
-            scopes: scope
+            client: var!(client),
+            user: var!(user),
+            scopes: var!(scope)
           }
           |> PoeApi.Token.Access.encode()
           |> case do
@@ -42,30 +42,30 @@ defmodule PoeApi.OAuth.Password do
               "client_id" => %{
                 "type" => "text",
                 "required" => true,
-                "value" => client_id
+                "value" => var!(client_id)
               },
               "client_secret" => %{
                 "type" => "password",
                 "required" => true,
-                "value" => client_secret
+                "value" => var!(client_secret)
               },
               "username" => %{
                 "type" => "text",
                 "required" => true,
-                "value" => username
+                "value" => var!(username)
               },
               "password" => %{
                 "type" => "password",
                 "required" => true,
-                "value" => password
+                "value" => var!(password)
               },
               "scope" => %{
                 "type" => "text",
-                "value" => scope
+                "value" => var!(scope)
               },
               "grant_type" => %{
                 "type" => "hidden",
-                "value" => grant_type || unquote(opts[:grant_type] || "password")
+                "value" => var!(grant_type) || unquote(opts[:grant_type] || "password")
               }
             }
           }
