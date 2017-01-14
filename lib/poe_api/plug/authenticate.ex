@@ -37,7 +37,7 @@ defmodule PoeApi.Plug.Authenticate do
   def get(conn, field \\ :user, transform \\ &(&1))
   def get(%{assigns: %{auth: auth}}, field, transform) when is_map(auth) do
     case Map.fetch!(auth, field) do
-      {:ok, value} when not is_nil(value) ->
+      value when not is_nil(value) ->
         transform.(value)
       _ ->
         nil
