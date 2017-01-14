@@ -1,8 +1,6 @@
 defmodule PoeApi.OAuth.Password do
   defmacro __using__(opts) do
-    quote bind_quoted: [
-      opts: {:quote, [], [[do: opts]]}
-    ] do
+    quote do
       use Mazurka.Resource
 
       input client_id
@@ -15,12 +13,10 @@ defmodule PoeApi.OAuth.Password do
       option clients
       option users
 
-      clients = Keyword.fetch!(opts, :clients)
-      let client = unquote(clients).authenticate(client_id, client_secret, :password)
+      let client = authenticate_client(client_id, client_secret)
       validation client
 
-      users = Keyword.fetch!(opts, :users)
-      let user = unquote(users).authenticate(username, password)
+      let user = authenticate_user(username, password)
       validation user
 
       mediatype Mazurka.Mediatype.Hyper do
@@ -34,7 +30,7 @@ defmodule PoeApi.OAuth.Password do
           |> case do
             {:ok, token, expires_in} ->
               %{
-                "token" => token,
+                "access_token" => token,
                 "expires_in" => expires_in
               }
           end
