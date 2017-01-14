@@ -32,17 +32,18 @@ defmodule PoeApi.Token.Config do
   def scopes() do
     config()
     |> Keyword.fetch!(:scopes)
+    |> maybe_fetch_system()
   end
 
   def senders() do
-    token = Application.fetch_env!(:poe_api, :token)
-    token
+    config = config()
+    config
     |> Keyword.fetch(:senders)
     |> case do
       {:ok, senders} ->
         senders
       _ ->
-        senders = token
+        senders = config
         |> fetch_secrets()
         |> parse_secrets()
         |> Enum.map(fn
@@ -52,7 +53,7 @@ defmodule PoeApi.Token.Config do
           ({secret, epoch}) ->
             {SimpleSecrets.init(secret), epoch}
         end)
-        Application.put_env(:poe_api, :token, Keyword.put(token, :senders, senders))
+        Application.put_env(:poe_api, :token, Keyword.put(config, :senders, senders))
         senders
     end
   end
@@ -64,6 +65,7 @@ defmodule PoeApi.Token.Config do
       _ ->
         Keyword.fetch!(token, :secrets)
     end
+    |> maybe_fetch_system()
   end
 
   defp parse_secrets(secrets) when is_binary(secrets) do
@@ -87,5 +89,15 @@ defmodule PoeApi.Token.Config do
             {String.trim(secret), epoch |> String.trim() |> String.to_integer()}
         end
     end)
+  end
+
+  defp maybe_fetch_system({:system, key}) do
+    System.get_env(key)
+  end
+  defp maybe_fetch_system({:system, key, default}) do
+    System.get_env(key) || default
+  end
+  defp maybe_fetch_system(value) do
+    value
   end
 end
