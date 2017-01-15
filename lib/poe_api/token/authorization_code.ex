@@ -5,7 +5,7 @@ defmodule PoeApi.Token.AuthorizationCode do
 
   defstruct [client: nil, scopes: [], user: nil, expiration: %RelativeExpiration{hours: 1}, redirect_uri: nil]
 
-  def encode(%{client: client, user: user, redirect_uri: redirect_uri, enabled_scopes: enabled_scopes, expiration: expiration}) do
+  def encode(%__MODULE__{client: client, user: user, redirect_uri: redirect_uri, scopes: enabled_scopes, expiration: expiration}) do
     [{sender, epoch} | _] = Config.senders()
     expiration = expiration || %RelativeExpiration{hours: 1}
     salt = :crypto.strong_rand_bytes(@salt_length)

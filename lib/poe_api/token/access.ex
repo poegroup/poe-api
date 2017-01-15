@@ -11,7 +11,7 @@ defmodule PoeApi.Token.Access do
     %{token | user: id}
     |> encode()
   end
-  def encode(%{client: client, user: user, scopes: scopes, expiration: expiration}) do
+  def encode(%__MODULE__{client: client, user: user, scopes: scopes, expiration: expiration}) do
     [{sender, epoch} | _] = Config.senders()
     expiration = expiration || %RelativeExpiration{hours: 8}
     params = %{
