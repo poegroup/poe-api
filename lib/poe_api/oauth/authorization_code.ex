@@ -8,6 +8,7 @@ defmodule PoeApi.OAuth.AuthorizationCode do
       input client_secret
       input code
       input redirect_uri
+      input grant_type
 
       let code_info do
         case Token.decode(var!(code)) do
@@ -70,7 +71,7 @@ defmodule PoeApi.OAuth.AuthorizationCode do
               },
               "grant_type" => %{
                 "type" => "text",
-                "value" => "authorization_code"
+                "value" => var!(grant_type) || "authorization_code"
               }
             }
           }

@@ -7,6 +7,7 @@ defmodule PoeApi.OAuth.ClientCredentials do
       input client_id
       input client_secret
       input scope
+      input grant_type
 
       let conn = var!(conn)
 
@@ -48,7 +49,7 @@ defmodule PoeApi.OAuth.ClientCredentials do
               },
               "grant_type" => %{
                 "type" => "hidden",
-                "value" => "client_credentials"
+                "value" => var!(grant_type) || "client_credentials"
               }
             }
           }

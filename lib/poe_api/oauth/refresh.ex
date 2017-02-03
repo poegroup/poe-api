@@ -7,6 +7,7 @@ defmodule PoeApi.OAuth.Refresh do
       input client_id
       input client_secret
       input token
+      input grant_type
 
       let refresh_token do
         case Token.decode(var!(token)) do
@@ -55,7 +56,7 @@ defmodule PoeApi.OAuth.Refresh do
               },
               "grant_type" => %{
                 "type" => "hidden",
-                "value" => "refresh_token"
+                "value" => var!(grant_type) || "client_credentials"
               }
             }
           }

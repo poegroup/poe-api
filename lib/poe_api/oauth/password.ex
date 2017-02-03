@@ -1,7 +1,8 @@
 defmodule PoeApi.OAuth.Password do
-  defmacro __using__(opts) do
+  defmacro __using__(_opts) do
     quote do
       use Mazurka.Resource
+      alias PoeApi.Token
 
       input client_id
       input client_secret
@@ -13,26 +14,42 @@ defmodule PoeApi.OAuth.Password do
       option clients
       option users
 
-      let client = authenticate_client(var!(client_id), var!(client_secret))
-      validation var!(client)
+      let conn = var!(conn)
+      let user = authenticate_user(var!(username), var!(password), var!(conn))
 
-      let user = authenticate_user(var!(username), var!(password))
+      validation client_id_valid?(var!(client_id), var!(conn))
+      validation client_secret_valid?(var!(client_secret), var!(conn))
       validation var!(user)
 
       mediatype Mazurka.Mediatype.Hyper do
         action do
-          %PoeApi.Token.Access{
-            client: var!(client),
+          {:ok, access_token, expires_in} = %Token.Access{
+            client: var!(client_id),
             user: var!(user),
-            scopes: var!(scope)
+            scopes: var!(scope),
           }
-          |> PoeApi.Token.Access.encode()
+          |> Token.encode()
+
+          response = %{
+            "token_type" => "bearer",
+            "access_token" => access_token,
+            "expires_in" => expires_in
+          }
+
+          get_refresh_token(
+            %{
+              client: var!(client_id),
+              user: var!(user),
+              scopes: var!(scope)
+            },
+            Mazurka.Resource.Input.get(),
+            var!(conn)
+          )
           |> case do
-            {:ok, token, expires_in} ->
-              %{
-                "access_token" => token,
-                "expires_in" => expires_in
-              }
+            nil ->
+              response
+            refresh_token when is_binary(refresh_token) ->
+              Map.put(response, "refresh_token", refresh_token)
           end
         end
 
@@ -65,12 +82,17 @@ defmodule PoeApi.OAuth.Password do
               },
               "grant_type" => %{
                 "type" => "hidden",
-                "value" => var!(grant_type) || unquote(opts[:grant_type] || "password")
+                "value" => var!(grant_type) || "password"
               }
             }
           }
         end
       end
+
+      def get_refresh_token(_code_info, _input, _conn), do: nil
+
+      defoverridable [get_refresh_token: 3]
+
     end
   end
 end
