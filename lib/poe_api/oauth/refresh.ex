@@ -1,4 +1,4 @@
-defmodule PoeApi.OAuth.AuthorizationCode do
+defmodule PoeApi.OAuth.Refresh do
   defmacro __using__(_opts) do
     quote do
       use Mazurka.Resource
@@ -6,12 +6,10 @@ defmodule PoeApi.OAuth.AuthorizationCode do
 
       input client_id
       input client_secret
-      input code
-      input redirect_uri
-      input grant_type
+      input token
 
-      let code_info do
-        case Token.decode(var!(code)) do
+      let refresh_token do
+        case Token.decode(var!(token)) do
           {:ok, info} -> info
           _ -> nil
         end
@@ -19,33 +17,23 @@ defmodule PoeApi.OAuth.AuthorizationCode do
 
       let conn = var!(conn)
 
-      validation client_id_valid?(var!(code_info), var!(client_id))
+      validation client_id_valid?(var!(refresh_token), var!(client_id))
       validation client_secret_valid?(var!(client_secret), var!(conn))
 
       mediatype Hyper do
         action do
           {:ok, access_token, expires_in} = %Token.Access{
-            user: var!(code_info).user,
-            client: var!(client_id),
-            scopes: var!(code_info).scopes,
-          }
-          |> Token.encode()
+            user: var!(refresh_token).user,
+            client: var!(refresh_token).client,
+            scopes: var!(refresh_token).scopes
+          } |> Token.encode()
 
-          response = %{
+          %{
             "token_type" => "bearer",
             "access_token" => access_token,
             "expires_in" => expires_in
           }
-
-          get_refresh_token(var!(code_info), Mazurka.Resource.Input.get(), var!(conn))
-          |> case do
-            nil ->
-              response
-            refresh_token when is_binary(refresh_token) ->
-              Map.put(response, "refresh_token", refresh_token)
-          end
         end
-
         affordance do
           %{
             "input" => %{
@@ -59,19 +47,14 @@ defmodule PoeApi.OAuth.AuthorizationCode do
                 "required" => true,
                 "value" => var!(client_secret)
               },
-              "code" => %{
-                "type" => "text",
+              "refresh_token" => %{
+                "type" => "password",
                 "required" => true,
-                "value" => var!(code)
-              },
-              "redirect_uri" => %{
-                "type" => "url",
-                "required" => true,
-                "value" => var!(redirect_uri)
+                "value" => var!(refresh_token)
               },
               "grant_type" => %{
-                "type" => "text",
-                "value" => var!(grant_type) || "authorization_code"
+                "type" => "hidden",
+                "value" => "refresh_token"
               }
             }
           }
@@ -81,9 +64,6 @@ defmodule PoeApi.OAuth.AuthorizationCode do
       defp client_id_valid?(%{client: client_id}, client_id), do: true
       defp client_id_valid?(_code_info, _client_id), do: false
 
-      def get_refresh_token(_code_info, _input, _conn), do: nil
-
-      defoverridable [get_refresh_token: 3]
     end
   end
 end
