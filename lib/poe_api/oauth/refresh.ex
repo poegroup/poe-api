@@ -19,6 +19,7 @@ defmodule PoeApi.OAuth.Refresh do
 
       validation client_id_valid?(var!(refresh_token), var!(client_id))
       validation client_secret_valid?(var!(client_secret), var!(conn))
+      validation token_valid?(var!(refresh_token), var!(conn))
 
       mediatype Hyper do
         action do
