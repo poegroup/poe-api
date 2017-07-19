@@ -21,17 +21,17 @@ defmodule PoeApi.Mixfile do
   end
   defp deps(_) do
     [{:bitfield, "~> 1.0.0"},
-     {:concerto, "~> 0.1.2"},
-     {:concerto_plug, "~> 0.1.0"},
+     {:concerto, "~> 0.1.5"},
+     {:concerto_plug, "~> 0.1.3"},
      {:cowboy, "~> 1.0.0"},
-     {:fugue, "~> 0.1.2"},
+     {:fugue, "~> 0.1.6"},
      {:mazurka, "~> 1.0.0"},
      {:mazurka_plug, "~> 0.1.0"},
-     {:plug, "~> 1.2.0"},
+     {:plug, "~> 1.3.0"},
      {:plug_x_forwarded_proto, "~> 0.1.0"},
-     {:plug_wait1, "~> 0.2.1"},
-     {:poison, "2.2.0"},
-     {:simple_secrets, "~> 1.0.0"},]
+     {:plug_wait1, "~> 0.2.3"},
+     {:poison, "3.1.0"},
+     {:simple_secret, "~> 1.0.0"},
   end
 
   defp package do

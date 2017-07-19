@@ -33,4 +33,7 @@ defmodule PoeApi.Token do
   def decode("r" <> _ = token) do
     Refresh.decode(token)
   end
+  def decode(token) do
+    decode("a" <> token)
+  end
 end
