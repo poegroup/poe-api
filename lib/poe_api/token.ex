@@ -1,5 +1,5 @@
 defmodule PoeApi.Token do
-  alias __MODULE__.{Access,AuthorizationCode,Utils}
+  alias __MODULE__.{Access,AuthorizationCode,Refresh,Utils}
 
   defmodule RelativeExpiration do
     defstruct [:hours]
@@ -23,10 +23,14 @@ defmodule PoeApi.Token do
     type.encode(config)
   end
 
+  def decode(nil), do: nil
   def decode("a" <> _ = token) do
     Access.decode(token)
   end
   def decode("c" <> _ = token) do
     AuthorizationCode.decode(token)
+  end
+  def decode("r" <> _ = token) do
+    Refresh.decode(token)
   end
 end

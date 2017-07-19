@@ -1,4 +1,4 @@
-defmodule PoeApi.OAuth.Password do
+defmodule PoeApi.OAuth.AuthorizationCode do
   defmacro __using__(_opts) do
     quote do
       use Mazurka.Resource
@@ -6,27 +6,28 @@ defmodule PoeApi.OAuth.Password do
 
       input client_id
       input client_secret
-      input username
-      input password
-      input scope
+      input code
+      input redirect_uri
       input grant_type
 
-      option clients
-      option users
+      let code_info do
+        case Token.decode(var!(code)) do
+          {:ok, info} -> info
+          _ -> nil
+        end
+      end
 
       let conn = var!(conn)
-      let user = authenticate_user(var!(username), var!(password), var!(conn))
 
-      validation client_id_valid?(var!(client_id), var!(conn))
+      validation client_id_valid?(var!(code_info), var!(client_id))
       validation client_secret_valid?(var!(client_secret), var!(conn))
-      validation var!(user)
 
-      mediatype Mazurka.Mediatype.Hyper do
+      mediatype Hyper do
         action do
           {:ok, access_token, expires_in} = %Token.Access{
+            user: var!(code_info).user,
             client: var!(client_id),
-            user: var!(user),
-            scopes: var!(scope),
+            scopes: var!(code_info).scopes,
           }
           |> Token.encode()
 
@@ -36,15 +37,7 @@ defmodule PoeApi.OAuth.Password do
             "expires_in" => expires_in
           }
 
-          get_refresh_token(
-            %{
-              client: var!(client_id),
-              user: var!(user),
-              scopes: var!(scope)
-            },
-            Mazurka.Resource.Input.get(),
-            var!(conn)
-          )
+          get_refresh_token(var!(code_info), Mazurka.Resource.Input.get(), var!(conn))
           |> case do
             nil ->
               response
@@ -66,33 +59,31 @@ defmodule PoeApi.OAuth.Password do
                 "required" => true,
                 "value" => var!(client_secret)
               },
-              "username" => %{
+              "code" => %{
                 "type" => "text",
                 "required" => true,
-                "value" => var!(username)
+                "value" => var!(code)
               },
-              "password" => %{
-                "type" => "password",
+              "redirect_uri" => %{
+                "type" => "url",
                 "required" => true,
-                "value" => var!(password)
-              },
-              "scope" => %{
-                "type" => "text",
-                "value" => var!(scope)
+                "value" => var!(redirect_uri)
               },
               "grant_type" => %{
-                "type" => "hidden",
-                "value" => var!(grant_type) || "password"
+                "type" => "text",
+                "value" => var!(grant_type) || "authorization_code"
               }
             }
           }
         end
       end
 
+      defp client_id_valid?(%{client: client_id}, client_id), do: true
+      defp client_id_valid?(_code_info, _client_id), do: false
+
       def get_refresh_token(_code_info, _input, _conn), do: nil
 
       defoverridable [get_refresh_token: 3]
-
     end
   end
 end
