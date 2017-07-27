@@ -31,7 +31,7 @@ defmodule PoeApi.Mixfile do
      {:plug_x_forwarded_proto, "~> 0.1.0"},
      {:plug_wait1, "~> 0.2.3"},
      {:poison, "3.1.0"},
-     {:simple_secret, "~> 1.0.0"},
+     {:simple_secret, "~> 1.0.0"},]
   end
 
   defp package do
