@@ -7,7 +7,7 @@ defmodule PoeApi.Router do
                      module_prefix: resource]
       use Concerto.Plug.Mazurka
 
-      if opts[:cors]
+      if opts[:cors] do
         plug CORSPlug
       end
 
